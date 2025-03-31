@@ -4,25 +4,20 @@ using UnityEngine.UI;
 public class MainUI : MonoBehaviour
 {
     #region Var
-    [SerializeField] RawImage mainMenuBackground;
     [SerializeField] Menu currentMenu;
 
     //Menus 
     [SerializeField] Menu mainMenu;
     [SerializeField] Menu themeMenu;
     [SerializeField] Menu scoreMenu;
-    [SerializeField] Menu soloOrMultiMenu;
-    [SerializeField] Menu lobbyMenu;
     Menu[] menus;
 
     //Properties
-    public bool IsValid => mainMenuBackground && mainMenu && themeMenu && scoreMenu;
+    public bool IsValid => mainMenu && themeMenu && scoreMenu;
     public Menu CurrentMenu {get => currentMenu; set { currentMenu = value; } }
     public Menu MainMenu => mainMenu;
     public Menu ThemeMenu => themeMenu;
     public Menu ScoreMenu => scoreMenu;
-    public Menu SoloOrMultiMenu => soloOrMultiMenu;
-    public Menu LobbyMenu => lobbyMenu;
     #endregion Var
 
     #region Methods
@@ -41,7 +36,6 @@ public class MainUI : MonoBehaviour
     // Gestion des menus (menus précedents, désactivation des menus au démarage, 
     void ManagePanels()
     {
-        mainMenu.gameObject.SetActive(true);
         SetMainUIInMenus();
         SetMenusManagementInMenusButton();
     }
@@ -50,8 +44,6 @@ public class MainUI : MonoBehaviour
         mainMenu.MainUI =  this;
         themeMenu.MainUI = this;
         scoreMenu.MainUI = this;
-        lobbyMenu.MainUI = this;
-        soloOrMultiMenu.MainUI = this;
     }
 
     private void SetMenusManagementInMenusButton()
@@ -60,9 +52,7 @@ public class MainUI : MonoBehaviour
         {   
             mainMenu, 
             themeMenu, 
-            scoreMenu, 
-            soloOrMultiMenu,
-            lobbyMenu
+            scoreMenu
         };
 
         for (int i = 0; i < menus.Length; i++)
@@ -73,7 +63,6 @@ public class MainUI : MonoBehaviour
                     continue;
                 else
                 {
-                    //Debug.Log("[SetMenusManagementInMenusButton::MainUI] -> for " + _button.ToString() + ", CurrentMenu = " + menus[i].ToString());
                     _button.CurrentMenu = menus[i];
                     _button.MainUI = this;
                     _button.SetMenuToOpen();

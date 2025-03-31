@@ -6,7 +6,7 @@ public class AnimeThemeButton : MenuButton
 {
     protected override void TransitionForNextMenu()
     {
-        ThemeU.ChoosenTheme = ThemeU.AnimeEasyString;
+        ThemeU.ChoosenTheme = ThemeU.FilmAndSerieHardString;
         Debug.Log(ThemeU.ChoosenTheme);
         SceneManager.LoadScene("Test", LoadSceneMode.Single);
     }

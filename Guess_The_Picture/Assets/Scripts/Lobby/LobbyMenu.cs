@@ -13,7 +13,6 @@ public class LobbyMenu : Menu
     [SerializeField] LobbySlots[] playersSlots;
     [SerializeField] Dictionary<int, LobbySlots> playersSlotsDictionnary = new Dictionary<int, LobbySlots>();
 
-    int totalPlayers = 0;
 
     public LobbySlots[] PlayersSlots { get { return playersSlots; } private set { playersSlots = value; } }
     public Dictionary<int, LobbySlots> PlayersSlotsDictionnary { get { return playersSlotsDictionnary; } private set { playersSlotsDictionnary = value; } }

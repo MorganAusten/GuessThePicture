@@ -11,8 +11,8 @@ public class Menu : MonoBehaviour
     [SerializeField, HideInInspector] Menu precedentMenu = null;
     [SerializeField] MenuButton[] buttonList;
     public MainUI MainUI { get => mainUI; set => mainUI = value; }
+    public Menu PrecedentMenu { get => precedentMenu; private set  => precedentMenu = value; }
     public MenuButton[] ButtonList => buttonList;
-    public Menu PrecedentMenu { get => precedentMenu; set => precedentMenu = value; }
     #endregion Var
 
     #region Methods
@@ -40,7 +40,6 @@ public class Menu : MonoBehaviour
 
     protected virtual void OnOpen(Menu _precedentMenu)
     {
-        //Debug.Log("Ouverture du menu");
         precedentMenu = _precedentMenu;
         gameObject.SetActive(true);
     }

@@ -7,7 +7,7 @@ public class MainPanelPlayButton : MenuButton
     {
         //Debug.Log(ToString());
         base.SetMenuToOpen();
-        menuToOpen = mainUI.SoloOrMultiMenu;
+        menuToOpen = mainUI.ThemeMenu;
     }
     #endregion Methods
 }

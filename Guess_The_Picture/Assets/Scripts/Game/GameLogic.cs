@@ -1,41 +1,82 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
+using TMPro;
 using Utils;
 
 #pragma warning disable CS0618 // Random Range est obsolète, c'est pas le cas psk Range c'est en float
 
 public class GameLogic : MonoBehaviour
 {
-    //A Utiliser plus tard
     //public event Action OnAnswerFound;
-    //public event Action OnNewRoundBegins;
 
+    [SerializeField] EndGameLogic endGameLogic;
     [SerializeField] GamePanel gamePanel;
+    [SerializeField] PlayerSlot player;
+    [SerializeField] TMP_Text roundText;
+
     [SerializeField] int numberOfRounds = 10;
-    [SerializeField]  int chrono = 15;
+    [SerializeField] int chrono = 15;
+    [SerializeField] int endRoundChronoDefault = 6;
 
     int score = 0;
     int currentRound = 0;
+    float endRoundChrono = 0;
+    float endGameChrono = 0;
     string currentCorrectAnswer = "";
+    string[] currentCorrectAnswers;
 
-    List<Texture2D> imageList;
-    Dictionary<Texture2D, string> imageMap;
+    List<GameImage> imageList;
+    Dictionary<GameImage, string[]> imageMap;
 
+    public PlayerSlot Player { get => player; private set => player = value; }
     public string CurrentCorrectAnswer { get => currentCorrectAnswer; private set => currentCorrectAnswer = value; }
-    public int Score { get => score; set => score = value; }
-    public int Chrono { get => chrono; set => chrono = value; }
-
+    public string[] CurrentCorrectAnswers { get => currentCorrectAnswers; private set => currentCorrectAnswers = value; }
+    public int Score { get => score; private set => score = value; }
+    public int Chrono { get => chrono; private set => chrono = value; }
 
     void Start()
     {
-        //Debug.Log(ThemeU.ChoosenTheme);
-        imageList = new List<Texture2D>();
-        imageMap = new Dictionary<Texture2D, string>();
+        endGameLogic.ComputeMedalsScore(numberOfRounds, gamePanel.BaseScoreIncrement);
+        endRoundChrono = endRoundChronoDefault;
+        imageList = new List<GameImage>();
+        imageMap = new Dictionary<GameImage, string[]>();
+
         SetGamePanel();
         SetImages();
         RoundBegins();
+        SetNewImageForTheRound();
     }
+
+    void Update()
+    {
+        if (gamePanel.RoundBegan == false && endGameLogic.GameEnded == false)
+            EndChronosUpdate();
+    }
+
+    void EndChronosUpdate()
+    {
+        endRoundChrono -= Time.deltaTime;
+        if (endRoundChrono <= 0)
+        {
+            if (currentRound >= numberOfRounds)
+            {
+                endGameChrono -= Time.deltaTime;
+                if (endGameChrono <= 0)
+                {
+                    endGameLogic.Score = player.Score;
+                    gamePanel.GameBegan = false;
+                    endGameLogic.GameEnded = true;
+                    return;
+                }
+            }
+            endRoundChrono = endRoundChronoDefault;
+            RoundBegins();
+            gamePanel.GrowingImage.SetRandomPosition();
+            gamePanel.GrowingImage.CircleGrowthUpdate(gamePanel.ChronoTimer);
+            SetNewImageForTheRound();
+        }
+    }
+
 
     private void SetGamePanel()
     {
@@ -45,21 +86,19 @@ public class GameLogic : MonoBehaviour
 
     void SetImages()
     {
-        Texture2D[] _images;
-        if (ThemeU.ActualGameTheme == "GameImages/")
-        {
-            Debug.Log("[GameLogic::SetImages] => No actual Game theme");
-            _images = Resources.LoadAll<Texture2D>("GameImages/Film&Serie");
-        }
+        GameImage[] _images;
+        if (ThemeU.ActualGameTheme == "GamesImages/")
+            _images = Resources.LoadAll<GameImage>(ThemeU.FilmAndSerieEasyString);
         else
-        {
-            //Debug.Log("[GameLogic::SetImages] => actual Game theme");
-            //Debug.Log("[GameLogic::SetImages] => " + ThemeU.ActualGameTheme);
-            _images = Resources.LoadAll<Texture2D>(ThemeU.ActualGameTheme);
-        }
+            _images = Resources.LoadAll<GameImage>(ThemeU.ActualGameTheme);
+        SelectRandomImagesByTheme(_images);
+    }
+
+    void SelectRandomImagesByTheme(GameImage[] _images)
+    {
         int _numberOfImages = 0;
         int _maxRange = _images.Length;
-        Texture2D _texture;
+        GameImage _texture;
         while (_numberOfImages < numberOfRounds)
         {
             int _randomNumber = UnityEngine.Random.RandomRange(0, _maxRange);
@@ -70,55 +109,31 @@ public class GameLogic : MonoBehaviour
                 _texture = _images[_randomNumber];
             }
             imageList.Add(_texture);
-            //Debug.Log(_texture.name);
-            imageMap.Add(_texture, _texture.name);
+            imageMap.Add(_texture, _texture.Answers);
             _numberOfImages++;
         }
-        //Debug.Log("[GameLogic::SetImages] => number of images: " + _numberOfImages);
     }
 
     void RoundBegins()
     {
-        //TODO Faire un systeme ou il y a une pause entre la fin d'une manche et le début d'une nouvelle (RoundBegan)
-
-        //Debug.Log("[GameLogic::RoundBegins] => current Round image in List : " + imageList[currentRound].name);
-        //Debug.Log("[GameLogic::RoundBegins] => current Answer : " + imageMap[imageList[currentRound]]);
-        SetNewImageForTheRound();
-        gamePanel.RoundBegan = true;
+        gamePanel.RoundBegins();
+        roundText.text = $"round : {currentRound+1}/{numberOfRounds}";
     }
 
     private void SetNewImageForTheRound()
     {
-        gamePanel.CurrentImage.texture = imageList[currentRound];
-        currentCorrectAnswer = imageMap[imageList[currentRound]].ToLower();
-    }
-
-    void GameEnds()
-    {
-
+        gamePanel.CurrentImage.texture = imageList[currentRound].Texture;
+        currentCorrectAnswers = imageMap[imageList[currentRound]];
+        //foreach (string _a in CurrentCorrectAnswers) Debug.LogError(_a);
+        gamePanel.GrowingImage.ImageTitle.text = imageList[currentRound].name;
     }
 
     public void RoundEnds()
     {
         currentRound +=1;
-        gamePanel.GrowingImage.SetRandomPosition();
-        if (currentRound >= numberOfRounds)
-            SceneManager.LoadScene("MainMenuScene", LoadSceneMode.Single);
-        gamePanel.ResetTimer();
-        SetNewImageForTheRound();
-        //TODO mettre en place une autre image, reset le crop et le timer.
         //TODO Si y'a plus de round, retour au menu
-        //TODO Afficher le nom
-    }
-
-
-
-    public void CorrectAnswerFound()
-    {
-        //TODO score en fonction de la vitesse de réponse
-        score += 1;
-        RoundEnds();
-        Debug.Log("[GameLogic::CorrectAnswerFound] => Correct Answer !");
     }
 
 }
+
+

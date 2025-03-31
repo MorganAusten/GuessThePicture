@@ -5,7 +5,7 @@ public class GameThemeButton : MenuButton
 {
     protected override void TransitionForNextMenu()
     {
-        ThemeU.ChoosenTheme = ThemeU.GameEasyString;
+        ThemeU.ChoosenTheme = ThemeU.FilmAndSerieMediumString;
         Debug.Log(ThemeU.ActualGameTheme);
         SceneManager.LoadScene("Test", LoadSceneMode.Single);
     }

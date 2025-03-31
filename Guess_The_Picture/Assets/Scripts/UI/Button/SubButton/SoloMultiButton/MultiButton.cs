@@ -8,7 +8,7 @@ public class MultiButton : MenuButton
     public override void SetMenuToOpen()
     {
         base.SetMenuToOpen();
-        menuToOpen = mainUI.LobbyMenu;
+        //menuToOpen = mainUI.LobbyMenu;
     }
     #endregion Methods
 }
